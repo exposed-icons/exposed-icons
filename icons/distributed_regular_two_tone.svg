@@ -1,0 +1,12 @@
+<svg width="25" height="24" viewBox="0 0 25 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M8.5 13.7688C8.5 15.0745 9.31716 16 10.6275 16H14.376C15.6869 16 16.4994 15.0745 16.4994 13.7688V10.2358C16.4994 8.92552 15.6869 8 14.376 8H10.6275C9.32117 8 8.5 8.92552 8.5 10.2358V13.7688Z" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path opacity="0.4" d="M11.8804 10.5488C11.4067 10.5488 11.0708 10.8453 11.0708 11.3208L11.0708 12.6809C11.0708 13.1566 11.4067 13.4514 11.8804 13.4514L13.1624 13.4514C13.6378 13.4514 13.9736 13.1566 13.9736 12.6809L13.9736 11.3208C13.9736 10.8468 13.6378 10.5488 13.1624 10.5488L11.8804 10.5488Z" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path opacity="0.4" d="M10.8857 8L10.8857 6" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path opacity="0.4" d="M14.1143 16L14.1143 18" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path opacity="0.4" d="M14.1143 8V3" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path opacity="0.4" d="M10.8857 16V21" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path opacity="0.4" d="M16.499 12L19.1924 12" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="20.3462" cy="12.0005" r="1.15385" transform="rotate(-90 20.3462 12.0005)" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<path opacity="0.4" d="M8.5 12L5.80762 12" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="4.65377" cy="11.9995" r="1.15385" transform="rotate(90 4.65377 11.9995)" stroke="black" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
