@@ -7,7 +7,7 @@
   "license": "ISC",
   "packageManager": "pnpm@8.7.1",
   "scripts": {
-    "build:icons": "pnpm --filter @exposed-icons/build-icons run build:svg-icons"
+    "build:svg": "pnpm --filter @exposed-icons/build-icons run build:svg-icons"
   },
   "devDependencies": {
     "@types/node": "^20.9.0",

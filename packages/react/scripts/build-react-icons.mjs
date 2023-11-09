@@ -3,7 +3,7 @@
 import * as fs from 'fs/promises'
 import * as path from 'path'
 
-import _, { uniq } from 'lodash-es'
+import _ from 'lodash-es'
 import chalk from 'chalk'
 import logUpdate from 'log-update'
 import * as svgson from 'svgson'
@@ -23,7 +23,7 @@ const ICONS_DIR = path.resolve(__dirname, '../src/icons')
 const cl = console.log
 
 function getIconName(name) {
-  let iconName = name
+  let iconName = name.toLowerCase()
   // replace all dashes with spaces
   iconName = name.replace(/-/g, ' ')
   // replace . with Dot
@@ -183,6 +183,9 @@ async function buildBaseIconWithProps({ iconName }) {
   variants = uniq(variants)
   shapes = uniq(shapes)
 
+  const defaultVariant = variants.includes('light') ? 'light' : variants[0]
+  const defaultShape = shapes.includes('regular') ? 'regular' : shapes[0]
+
   // console.log(tsxImports, variants)
 
   let tsxFileContent = `
@@ -194,11 +197,13 @@ async function buildBaseIconWithProps({ iconName }) {
     type IconShape = ${shapes.map((shape) => `'${shape}'`).join(' | ')}
 
     type ${iconName}IconProps = {
+      /** @default '${defaultVariant}' */
       variant?: IconVariant
+      /** @default '${defaultShape}' */
       shape?: IconShape
     } & Omit<ExposedIconProps, 'variant' | 'shape'>
 
-    const ${iconName} = ({ variant = 'light', shape = 'regular', ...props }: ${iconName}IconProps) => {
+    const ${iconName} = ({ variant = '${defaultVariant}', shape = '${defaultShape}', ...props }: ${iconName}IconProps) => {
       ${tsxBody}
       return null
     }
@@ -206,10 +211,10 @@ async function buildBaseIconWithProps({ iconName }) {
     export default ${iconName}
   `
 
-  tsxFileContent = await prettier.format(tsxFileContent, {
-    parser: 'typescript',
-    ...prettierConfig,
-  })
+  // tsxFileContent = await prettier.format(tsxFileContent, {
+  //   parser: 'typescript',
+  //   ...prettierConfig,
+  // })
 
   // Write icon to file
   const fileName = `${iconName}.tsx`
@@ -241,7 +246,7 @@ async function buildBaseIconsWithProps() {
 
   let iconNames = _.take(icons, Infinity)
   iconNames = iconNames.map(({ name }) => getIconName(name))
-  iconNames = uniq(iconNames)
+  iconNames = _.uniqBy(iconNames, getIconName())
 
   cl(
     `🔎 Found ${chalk.yellowBright(
@@ -274,9 +279,9 @@ async function buildBaseIconsWithProps() {
     logUpdate(
       `   💔 ${chalk.redBright(fNumber(failed))}\n   ✅ ${chalk.greenBright(
         fNumber(++built),
-      )}\n   🧭 ${Math.floor(
-        (Date.now() - now) / 1000,
-      )}s ${chalk.yellowBright(`${fPercentage(built / iconNames.length)}`)}`,
+      )}\n   🧭 ${Math.floor((Date.now() - now) / 1000)}s ${chalk.yellowBright(
+        `${fPercentage(built / iconNames.length)}`,
+      )}`,
     )
   }
 }

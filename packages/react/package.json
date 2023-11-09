@@ -5,27 +5,29 @@
   "author": "Dustin Do",
   "license": "ISC",
   "amdName": "exposed-icons-react",
-  "main": "dist/cjs/exposed-icons-react.js",
+  "main": "dist/cjs/index.js",
   "main:umd": "dist/umd/exposed-icons-react.js",
-  "module": "dist/esm/exposed-icons-react.js",
-  "unpkg": "dist/umd/exposed-icons-react.min.js",
-  "typings": "dist/exposed-icons-react.d.ts",
+  "module": "dist/esm/exposed-icons.js",
+  "unpkg": "dist/umd/index.min.js",
+  "typings": "dist/index.d.ts",
   "sideEffects": false,
   "files": [
-    "dist",
-    "dynamicIconImports.js",
-    "dynamicIconImports.js.map",
-    "dynamicIconImports.d.ts"
+    "dist"
   ],
   "scripts": {
-    "clean": "rm -rf ./src/icons/*.ts && find ./src/icons/ -mindepth 1 -not -name '.gitkeep' -delete",
-    "build": "pnpm clean && node ./scripts/build-react-icons.mjs"
+    "clean": "rm -rf dist && rm -rf ./src/icons/*.ts && find ./src/icons/ -mindepth 1 -not -name '.gitkeep' -delete",
+    "build:icons": "node ./scripts/build-react-icons.mjs",
+    "build:bundles": "node --max-old-space-size=16384 node_modules/rollup/dist/bin/rollup -c ./rollup.config.mjs",
+    "build": "pnpm clean && pnpm build:icons && pnpm build:bundles"
   },
   "devDependencies": {
+    "@atomico/rollup-plugin-sizes": "^1.1.4",
     "@exposed-icons/utils": "workspace:*",
+    "@rollup/plugin-replace": "^5.0.5",
     "@types/prop-types": "^15.7.10",
     "@types/react": "^18.2.37",
     "chalk": "^5.3.0",
+    "esbuild": "^0.19.5",
     "lodash-es": "^4.17.21",
     "log-update": "^6.0.0",
     "prettier": "^3.0.3",
@@ -33,6 +35,9 @@
     "react-dom": "^18.2.0",
     "rollup": "^4.3.0",
     "rollup-plugin-dts": "^6.1.0",
+    "rollup-plugin-esbuild": "^6.1.0",
+    "rollup-plugin-license": "^3.2.0",
+    "rollup-plugin-visualizer": "^5.9.2",
     "svgo": "^3.0.3",
     "svgson": "^5.3.1"
   },
