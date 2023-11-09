@@ -7,9 +7,9 @@
   "amdName": "exposed-icons-react",
   "main": "dist/cjs/index.js",
   "main:umd": "dist/umd/exposed-icons-react.js",
-  "module": "src/index.ts",
+  "module": "dist/esm/index.ts",
   "unpkg": "dist/umd/index.min.js",
-  "typings": "src/index.ts",
+  "typings": "dist/index.d.ts",
   "sideEffects": false,
   "files": [
     "dist"

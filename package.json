@@ -1,17 +1,21 @@
 {
   "name": "exposed-icons",
   "version": "0.0.1",
-  "description": "A collection of icons from various sources, exposed as React components.",
+  "description": "A collection of icons from various sources.",
   "keywords": [],
   "author": "Exposed Icons",
   "license": "ISC",
   "packageManager": "pnpm@8.7.1",
   "scripts": {
-    "build:svg": "pnpm --filter @exposed-icons/build-icons run build:svg-icons"
+    "react": "pnpm --filter @exposed-icons/react",
+    "web": "pnpm --filter @exposed-icons/web"
   },
   "devDependencies": {
     "@types/node": "^20.9.0",
     "prettier": "^3.0.3",
     "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "release-it": "^16.2.1"
   }
 }
