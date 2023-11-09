@@ -8,7 +8,7 @@ import dts from 'rollup-plugin-dts'
 const packageName = 'ExposedIconsReact'
 const outputFileName = 'index'
 const outputDir = `dist`
-const inputs = [`src/exposed-icons.ts`]
+const inputs = [`src/index.ts`]
 const bundles = [
   {
     format: 'umd',

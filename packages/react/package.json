@@ -7,16 +7,16 @@
   "amdName": "exposed-icons-react",
   "main": "dist/cjs/index.js",
   "main:umd": "dist/umd/exposed-icons-react.js",
-  "module": "dist/esm/exposed-icons.js",
+  "module": "src/index.ts",
   "unpkg": "dist/umd/index.min.js",
-  "typings": "dist/index.d.ts",
+  "typings": "src/index.ts",
   "sideEffects": false,
   "files": [
     "dist"
   ],
   "scripts": {
     "clean": "rm -rf stats && rm -rf dist && rm -rf ./src/icons/*.ts && find ./src/icons/ -mindepth 1 -not -name '.gitkeep' -delete || true",
-    "build:icons": "node ./scripts/build-react-icons.mjs",
+    "build:icons": "node --max-old-space-size=16384 ./scripts/build-react-icons.mjs",
     "build:bundles": "node --max-old-space-size=16384 node_modules/rollup/dist/bin/rollup -c ./rollup.config.mjs",
     "build": "pnpm clean && pnpm build:icons && pnpm build:bundles"
   },
@@ -24,6 +24,9 @@
     "@atomico/rollup-plugin-sizes": "^1.1.4",
     "@exposed-icons/utils": "workspace:*",
     "@rollup/plugin-replace": "^5.0.5",
+    "@svgr/core": "^8.1.0",
+    "@svgr/plugin-jsx": "^8.1.0",
+    "@svgr/plugin-prettier": "^8.1.0",
     "@types/prop-types": "^15.7.10",
     "@types/react": "^18.2.37",
     "chalk": "^5.3.0",

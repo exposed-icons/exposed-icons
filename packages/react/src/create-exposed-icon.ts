@@ -69,7 +69,7 @@ const createExposedIcon = (
           strokeWidth: absoluteStrokeWidth
             ? (Number(strokeWidth) * 24) / Number(size)
             : strokeWidth,
-          className: `exposed-icon exposed-icon-${toKebabCase(iconName)}`,
+          className: `exposed-icon2 exposed-icon-${toKebabCase(iconName)}`,
           ...rest,
         },
         [
