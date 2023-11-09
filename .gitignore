@@ -4,3 +4,7 @@ stats/
 dist/
 icons/
 src/exposed_icons.json
+packages/**/src/dynamicIconImports.ts
+packages/**/dynamicIconImports.js
+packages/**/dynamicIconImports.d.ts
+packages/**/dynamicIconImports.js.map

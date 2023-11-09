@@ -12,7 +12,10 @@
   "typings": "dist/index.d.ts",
   "sideEffects": false,
   "files": [
-    "dist"
+    "dist",
+    "dynamicIconImports.js",
+    "dynamicIconImports.js.map",
+    "dynamicIconImports.d.ts"
   ],
   "scripts": {
     "clean": "rm -rf stats && rm -rf dist && rm -rf ./src/icons/*.ts && find ./src/icons/ -mindepth 1 -not -name '.gitkeep' -delete || true",
