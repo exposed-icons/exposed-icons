@@ -17,6 +17,8 @@ import prettierConfig from '../../../.prettierrc.js'
 
 const { icons, types, styles } = db
 
+const CI = process.env.CI === 'true'
+
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
 const ICONS_DIR = path.resolve(__dirname, '../src/icons')
 
@@ -25,7 +27,7 @@ const cl = console.log
 function getIconName(name) {
   let iconName = name.toLowerCase()
   // replace all dashes with spaces
-  iconName = name.replace(/-/g, ' ')
+  iconName = iconName.replace(/-/g, ' ')
   // replace . with Dot
   iconName = iconName.replace(/\./g, ' Dot ')
   // replace , with Comma
@@ -71,8 +73,8 @@ async function buildIcon({ name, svg, type_id, style_id }) {
   })
 
   // Write icon to file
-  const fileName = `${iconName}.tsx`
-  const filePath = path.join(typeBasedDir, fileName)
+  const fileName = _.kebabCase(iconName)
+  const filePath = path.join(typeBasedDir, `${fileName}.tsx`)
 
   await fs.writeFile(filePath, tsxFileContent)
 
@@ -84,7 +86,7 @@ async function buildIcon({ name, svg, type_id, style_id }) {
   } catch (error) {}
 
   if (!indexFileContent.includes(iconName)) {
-    let newFileContent = `${indexFileContent}export { default as ${iconName} } from './${iconName}'`
+    let newFileContent = `${indexFileContent}export { default as ${iconName} } from './${fileName}'`
     newFileContent = await prettier.format(newFileContent, {
       parser: 'babel',
       ...prettierConfig,
@@ -112,15 +114,18 @@ async function buildReactIcons() {
   let started = Date.now()
   let built = 0
   let failed = 0
+
   for (const icon of iconsToGen) {
     try {
       await buildIcon(icon)
     } catch (error) {
       cl(`⚠️ Failed to build ${chalk.redBright(icon.name)}`)
       failed++
+      console.log(error)
+      process.exit(1)
     }
 
-    logUpdate(
+    !CI && logUpdate(
       `   💔 ${chalk.redBright(fNumber(failed))}\n   ✅ ${chalk.greenBright(
         fNumber(++built),
       )}\n   🧭 ${Math.floor(
@@ -136,7 +141,12 @@ async function findIconFileByStyleAndType(
   type,
   extension = 'tsx',
 ) {
-  const iconPath = path.join(ICONS_DIR, type, style, `${iconName}.${extension}`)
+  const iconPath = path.join(
+    ICONS_DIR,
+    type,
+    style,
+    `${_.kebabCase(iconName)}.${extension}`,
+  )
   try {
     await fs.access(iconPath)
     return iconPath
@@ -156,6 +166,9 @@ async function buildBaseIconWithProps({ iconName }) {
     }
   }
 
+  const fileName = _.kebabCase(iconName)
+  const filePath = path.join(ICONS_DIR, 'all', `${fileName}.tsx`)
+
   let tsxImports = ``
   let tsxBody = ``
 
@@ -168,7 +181,7 @@ async function buildBaseIconWithProps({ iconName }) {
 
     const importName = getIconName(`${iconName} ${type} ${style}`)
 
-    tsxImports += `import ${importName} from '../${type}/${style}/${iconName}'\n`
+    tsxImports += `import ${importName} from '../${type}/${style}/${fileName}'\n`
 
     shapes.push(type)
     variants.push(style)
@@ -196,7 +209,7 @@ async function buildBaseIconWithProps({ iconName }) {
     type IconVariant = ${variants.map((variant) => `'${variant}'`).join(' | ')}
     type IconShape = ${shapes.map((shape) => `'${shape}'`).join(' | ')}
 
-    type ${iconName}IconProps = {
+    export type ${iconName}IconProps = {
       /** @default '${defaultVariant}' */
       variant?: IconVariant
       /** @default '${defaultShape}' */
@@ -211,15 +224,12 @@ async function buildBaseIconWithProps({ iconName }) {
     export default ${iconName}
   `
 
-  // tsxFileContent = await prettier.format(tsxFileContent, {
-  //   parser: 'typescript',
-  //   ...prettierConfig,
-  // })
+  tsxFileContent = await prettier.format(tsxFileContent, {
+    parser: 'typescript',
+    ...prettierConfig,
+  })
 
   // Write icon to file
-  const fileName = `${iconName}.tsx`
-  const filePath = path.join(ICONS_DIR, 'all', fileName)
-
   await fs.writeFile(filePath, tsxFileContent)
 
   // Append icon to index.ts
@@ -230,7 +240,7 @@ async function buildBaseIconWithProps({ iconName }) {
   } catch (error) {}
 
   if (!indexFileContent.includes(iconName)) {
-    let newFileContent = `${indexFileContent}export { default as ${iconName} } from './${iconName}'`
+    let newFileContent = `${indexFileContent}export { default as ${iconName} } from './${fileName}'`
     newFileContent = await prettier.format(newFileContent, {
       parser: 'babel',
       ...prettierConfig,
@@ -246,7 +256,7 @@ async function buildBaseIconsWithProps() {
 
   let iconNames = _.take(icons, Infinity)
   iconNames = iconNames.map(({ name }) => getIconName(name))
-  iconNames = _.uniqBy(iconNames, getIconName)
+  iconNames = _.uniq(iconNames)
 
   cl(
     `🔎 Found ${chalk.yellowBright(
@@ -277,7 +287,7 @@ async function buildBaseIconsWithProps() {
       console.error(error)
     }
 
-    logUpdate(
+    !CI && logUpdate(
       `   💔 ${chalk.redBright(fNumber(failed))}\n   ✅ ${chalk.greenBright(
         fNumber(++built),
       )}\n   🧭 ${Math.floor((Date.now() - now) / 1000)}s ${chalk.yellowBright(
