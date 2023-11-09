@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "type": "module",
-  "exports": "./src/index.mjs",
-  "types": "./src/index.mjs",
+  "exports": "./index.mjs",
+  "types": "./index.mjs",
   "keywords": [],
   "author": "Dustin Do",
   "license": "ISC"
