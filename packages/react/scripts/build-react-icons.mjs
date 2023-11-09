@@ -180,8 +180,8 @@ async function buildBaseIconWithProps({ iconName }) {
     `
   }
 
-  variants = uniq(variants)
-  shapes = uniq(shapes)
+  variants = _.uniq(variants)
+  shapes = _.uniq(shapes)
 
   const defaultVariant = variants.includes('light') ? 'light' : variants[0]
   const defaultShape = shapes.includes('regular') ? 'regular' : shapes[0]
@@ -274,6 +274,7 @@ async function buildBaseIconsWithProps() {
     } catch (error) {
       cl(`⚠️ Failed to build ${chalk.redBright(iconName)}`)
       failed++
+      console.error(error)
     }
 
     logUpdate(
