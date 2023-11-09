@@ -49,7 +49,7 @@ async function buildSvgIcons() {
   cl(`🔎 Found ${chalk.yellowBright(fNumber(icons.length))} icons.`)
 
   // Clean up the icons folder
-  await fs.rm(ICON_DIR, { recursive: true })
+  await fs.rm(ICON_DIR, { recursive: true, force: true })
   await fs.mkdir(ICON_DIR, { recursive: true })
 
   cl('🗂️  Verified icons folder', chalk.greenBright(ICON_DIR))

@@ -1,0 +1,42 @@
+{
+  "name": "@exposed-icons/react",
+  "version": "0.0.1",
+  "keywords": [],
+  "author": "Dustin Do",
+  "license": "ISC",
+  "amdName": "exposed-icons-react",
+  "main": "dist/cjs/exposed-icons-react.js",
+  "main:umd": "dist/umd/exposed-icons-react.js",
+  "module": "dist/esm/exposed-icons-react.js",
+  "unpkg": "dist/umd/exposed-icons-react.min.js",
+  "typings": "dist/exposed-icons-react.d.ts",
+  "sideEffects": false,
+  "files": [
+    "dist",
+    "dynamicIconImports.js",
+    "dynamicIconImports.js.map",
+    "dynamicIconImports.d.ts"
+  ],
+  "scripts": {
+    "clean": "rm -rf ./src/icons/*.ts && find ./src/icons/ -mindepth 1 -not -name '.gitkeep' -delete",
+    "build": "pnpm clean && node ./scripts/build-react-icons.mjs"
+  },
+  "devDependencies": {
+    "@exposed-icons/utils": "workspace:*",
+    "@types/prop-types": "^15.7.10",
+    "@types/react": "^18.2.37",
+    "chalk": "^5.3.0",
+    "lodash-es": "^4.17.21",
+    "log-update": "^6.0.0",
+    "prettier": "^3.0.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rollup": "^4.3.0",
+    "rollup-plugin-dts": "^6.1.0",
+    "svgo": "^3.0.3",
+    "svgson": "^5.3.1"
+  },
+  "peerDependencies": {
+    "react": "^16.5.1 || ^17.0.0 || ^18.0.0"
+  }
+}
