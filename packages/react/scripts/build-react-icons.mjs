@@ -246,7 +246,7 @@ async function buildBaseIconsWithProps() {
 
   let iconNames = _.take(icons, Infinity)
   iconNames = iconNames.map(({ name }) => getIconName(name))
-  iconNames = _.uniqBy(iconNames, getIconName())
+  iconNames = _.uniqBy(iconNames, getIconName)
 
   cl(
     `🔎 Found ${chalk.yellowBright(
