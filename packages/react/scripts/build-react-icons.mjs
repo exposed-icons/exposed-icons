@@ -3,7 +3,7 @@
 import * as fs from 'fs/promises'
 import * as path from 'path'
 
-import _ from 'lodash-es'
+import _, { uniq } from 'lodash-es'
 import chalk from 'chalk'
 import logUpdate from 'log-update'
 import * as svgson from 'svgson'
@@ -47,12 +47,6 @@ async function buildIcon({ name, svg, type_id, style_id }) {
   const style = styles.find((style) => style.id === style_id).name.toLowerCase()
   const iconName = getIconName(name)
 
-  // const logTitle = `⚛️  Building ${chalk.redBright(name)} → ${chalk.greenBright(
-  //   iconName,
-  // )} (${chalk.yellowBright(type)}, ${chalk.yellowBright(style)})...`
-
-  // logUpdate(logTitle)
-
   // Verify icon directory
   const typeBasedDir = path.join(ICONS_DIR, type, style)
 
@@ -64,7 +58,8 @@ async function buildIcon({ name, svg, type_id, style_id }) {
     const ${iconName} = createExposedIcon('${iconName}', ${JSON.stringify(
       svgson
         .parseSync(svg.replace(/Iconly\//g, 'ExposedIcon/'))
-        .children.filter(child => !['title'].includes(child.name)).map((child) => [child.name, child.attributes]),
+        .children.filter((child) => !['title'].includes(child.name))
+        .map((child) => [child.name, child.attributes]),
     )})
 
     export default ${iconName}
@@ -101,14 +96,18 @@ async function buildIcon({ name, svg, type_id, style_id }) {
 async function buildReactIcons() {
   cl(
     chalk.greenBright(
-      `🚀 Building ${chalk.yellowBright('@exposed-icons/react')} icons...`,
+      `🚀 Building ${chalk.yellowBright('@exposed-icons/react')}...`,
     ),
   )
   cl(`🔎 Found ${chalk.yellowBright(fNumber(icons.length))} icons.`)
 
   let iconsToGen = _.take(icons, Infinity)
 
-  cl(`🔨 Building ${chalk.yellowBright(fNumber(iconsToGen.length))} React icons...`)
+  cl(
+    `🔨 Building ${chalk.yellowBright(
+      fNumber(iconsToGen.length),
+    )} React icons...`,
+  )
 
   let started = Date.now()
   let built = 0
@@ -126,13 +125,169 @@ async function buildReactIcons() {
         fNumber(++built),
       )}\n   🧭 ${Math.floor(
         (Date.now() - started) / 1000,
-      )}s ${chalk.yellowBright(`${fPercentage((built) / iconsToGen.length)}`)}`,
+      )}s ${chalk.yellowBright(`${fPercentage(built / iconsToGen.length)}`)}`,
     )
   }
 }
 
+async function findIconFileByStyleAndType(
+  iconName,
+  style,
+  type,
+  extension = 'tsx',
+) {
+  const iconPath = path.join(ICONS_DIR, type, style, `${iconName}.${extension}`)
+  try {
+    await fs.access(iconPath)
+    return iconPath
+  } catch (error) {
+    return null
+  }
+}
+
+async function buildBaseIconWithProps({ iconName }) {
+  /**
+   * @type {['regular' | 'sharp' | 'curved', 'light' | 'light-outline' | 'bold' | 'broken' | 'bulk' | 'two-tone'][]}
+   */
+  let typeStyleMatrix = []
+  for (const type of types) {
+    for (const style of styles) {
+      typeStyleMatrix.push([type.name.toLowerCase(), style.name.toLowerCase()])
+    }
+  }
+
+  let tsxImports = ``
+  let tsxBody = ``
+
+  let variants = []
+  let shapes = []
+
+  for (const [type, style] of typeStyleMatrix) {
+    const iconPath = await findIconFileByStyleAndType(iconName, style, type)
+    if (!iconPath) continue
+
+    const importName = getIconName(`${iconName} ${type} ${style}`)
+
+    tsxImports += `import ${importName} from '../${type}/${style}/${iconName}'\n`
+
+    shapes.push(type)
+    variants.push(style)
+
+    tsxBody += `
+      if (variant === '${style}' && shape === '${type}') {
+        return <${importName} {...props} />
+      }
+    `
+  }
+
+  variants = uniq(variants)
+  shapes = uniq(shapes)
+
+  // console.log(tsxImports, variants)
+
+  let tsxFileContent = `
+    import { ExposedIconProps } from '../../create-exposed-icon'
+
+    ${tsxImports}
+
+    type IconVariant = ${variants.map((variant) => `'${variant}'`).join(' | ')}
+    type IconShape = ${shapes.map((shape) => `'${shape}'`).join(' | ')}
+
+    type ${iconName}IconProps = {
+      variant?: IconVariant
+      shape?: IconShape
+    } & Omit<ExposedIconProps, 'variant' | 'shape'>
+
+    const ${iconName} = ({ variant = 'light', shape = 'regular', ...props }: ${iconName}IconProps) => {
+      ${tsxBody}
+      return null
+    }
+
+    export default ${iconName}
+  `
+
+  tsxFileContent = await prettier.format(tsxFileContent, {
+    parser: 'typescript',
+    ...prettierConfig,
+  })
+
+  // Write icon to file
+  const fileName = `${iconName}.tsx`
+  const filePath = path.join(ICONS_DIR, 'all', fileName)
+
+  await fs.writeFile(filePath, tsxFileContent)
+
+  // Append icon to index.ts
+  const indexFilePath = path.join(ICONS_DIR, 'all', 'index.ts')
+  let indexFileContent = ''
+  try {
+    indexFileContent = await fs.readFile(indexFilePath, 'utf-8')
+  } catch (error) {}
+
+  if (!indexFileContent.includes(iconName)) {
+    let newFileContent = `${indexFileContent}export { default as ${iconName} } from './${iconName}'`
+    newFileContent = await prettier.format(newFileContent, {
+      parser: 'babel',
+      ...prettierConfig,
+    })
+    await fs.writeFile(indexFilePath, newFileContent)
+  }
+
+  return tsxFileContent
+}
+
+async function buildBaseIconsWithProps() {
+  cl(chalk.greenBright(`🚀 Building base react icons with props`))
+
+  let iconNames = _.take(icons, Infinity)
+  iconNames = iconNames.map(({ name }) => getIconName(name))
+  iconNames = uniq(iconNames)
+
+  cl(
+    `🔎 Found ${chalk.yellowBright(
+      iconNames.length,
+    )} unique names over ${chalk.yellowBright(icons.length)} icons`,
+  )
+
+  const iconsDir = path.join(ICONS_DIR, 'all')
+  await fs.mkdir(iconsDir, { recursive: true })
+
+  let typeStyleMatrix = []
+  for (const type of types) {
+    for (const style of styles) {
+      typeStyleMatrix.push([type.name.toLowerCase(), style.name.toLowerCase()])
+    }
+  }
+
+  const now = Date.now()
+  let built = 0
+  let failed = 0
+
+  for (const iconName of iconNames) {
+    try {
+      await buildBaseIconWithProps({ iconName })
+    } catch (error) {
+      cl(`⚠️ Failed to build ${chalk.redBright(iconName)}`)
+      failed++
+    }
+
+    logUpdate(
+      `   💔 ${chalk.redBright(fNumber(failed))}\n   ✅ ${chalk.greenBright(
+        fNumber(++built),
+      )}\n   🧭 ${Math.floor(
+        (Date.now() - now) / 1000,
+      )}s ${chalk.yellowBright(`${fPercentage(built / iconNames.length)}`)}`,
+    )
+  }
+}
+
+async function main() {
+  await buildReactIcons()
+  await buildBaseIconsWithProps()
+}
+
 try {
-  buildReactIcons()
+  main()
 } catch (error) {
   console.error(error)
   process.exit(1)
