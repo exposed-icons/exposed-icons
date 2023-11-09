@@ -18,7 +18,7 @@
     "dynamicIconImports.d.ts"
   ],
   "scripts": {
-    "clean": "rm -rf stats && rm -rf dist && rm -rf ./src/icons/*.ts && find ./src/icons/ -mindepth 1 -not -name '.gitkeep' -delete || true",
+    "clean": "rm -rf stats && rm -f dynamicIconImports.* && rm -rf dist && rm -rf ./src/icons/*.ts && find ./src/icons/ -mindepth 1 -not -name '.gitkeep' -delete || true",
     "build:icons": "node --max-old-space-size=16384 ./scripts/build-react-icons.mjs",
     "build:bundles": "node --max-old-space-size=16384 node_modules/rollup/dist/bin/rollup -c ./rollup.config.mjs",
     "build": "pnpm clean && pnpm build:icons && pnpm build:bundles"

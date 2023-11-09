@@ -61,7 +61,7 @@ async function buildIcon({ name, svg, type_id, style_id }) {
         black: 'currentColor',
       },
     },
-    { componentName: iconName },
+    { componentName: `${iconName}Icon` },
   )
 
   // Remove react import
@@ -69,6 +69,9 @@ async function buildIcon({ name, svg, type_id, style_id }) {
   // Remove title
   tsxFileContent = tsxFileContent.replace(/<title>.*<\/title>/g, '')
   tsxFileContent = tsxFileContent.replace(/Iconly/g, 'ExposedIcon')
+  // Add displayName
+  // tsxFileContent += `ForwardRef.displayName = '${iconName}'\n\n`
+  tsxFileContent = tsxFileContent.replace(/ForwardRef/g, iconName)
 
   tsxFileContent = await prettier.format(tsxFileContent, {
     parser: 'typescript',
