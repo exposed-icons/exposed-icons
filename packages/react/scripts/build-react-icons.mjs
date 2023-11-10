@@ -15,8 +15,9 @@ import numberToEnglish from './number-to-english.mjs'
 import prettierConfig from '../../../.prettierrc.js'
 
 const { icons: _icons, types, styles } = db
+const styleNames = styles.map(({ name }) => name.toLowerCase())
 
-const icons = _icons //.filter(({ name }) => name === 'Add User')
+const icons = _icons.filter(({ name }) => name === 'Add User')
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname)
 const ICONS_DIR = path.resolve(__dirname, '../src/icons')
@@ -79,10 +80,38 @@ async function buildIcon({ name, svg, type_id, style_id }) {
   })
 
   // Write icon to file
+  const fileDir = path.join(ICONS_DIR, style)
   const fileName = _.kebabCase(iconName)
-  const filePath = path.join(ICONS_DIR, `${fileName}.tsx`)
+  const filePath = path.join(fileDir, `${fileName}.tsx`)
+  const indexFilePath = path.join(fileDir, 'index.ts')
+  const dynamicImportsFilePath = path.join(ICONS_DIR, 'dynamic', `${style}.ts`)
+
+  await fs.mkdir(fileDir, { recursive: true })
+  await fs.mkdir(path.join(ICONS_DIR, 'dynamic'), { recursive: true })
 
   await fs.writeFile(filePath, tsxFileContent)
+
+  // Update index.ts
+  const exportStatement = `export { default as ${iconName} } from './${fileName}'\n`
+  await fs.appendFile(indexFilePath, exportStatement)
+
+  // Update dynamic-imports.ts
+  const dynamicImportStatement = `  ${iconName}: () => import('../${style}/${_.kebabCase(
+    getIconName(`${name} ${type} ${style}`),
+  )}'),\n`
+
+  let dynamicImportsContent = ''
+  try {
+    dynamicImportsContent = await fs.readFile(dynamicImportsFilePath, {
+      encoding: 'utf-8',
+    })
+  } catch (error) {}
+
+  if (!dynamicImportsContent) {
+    await fs.writeFile(dynamicImportsFilePath, 'const dynamicIconImports = {\n')
+  }
+
+  await fs.appendFile(dynamicImportsFilePath, dynamicImportStatement)
 
   return { name, componentName: iconName, type, style }
 }
@@ -106,45 +135,31 @@ async function buildReactIcons() {
   let generatedIcons = []
 
   for (const icon of iconsToGen) {
-    generatedIcons.push(await buildIcon(icon))
+    await buildIcon(icon)
+    // generatedIcons.push(await buildIcon(icon))
   }
 
-  generatedIcons = _.uniqBy(
-    generatedIcons,
-    ({ componentName }) => componentName,
-  )
-
-  // Write index.ts and dynamicIconImports.ts
   const indexFilePath = path.join(ICONS_DIR, 'index.ts')
-  // const dynamicIconImportsFilePath = path.join(
-  //   __dirname,
-  //   '../src/dynamicIconImports.ts',
-  // )
 
-  // let dynamicIconImports = 'const dynamicIconImports = {\n'
+  for (const style of styleNames) {
+    const dynamicImportsFilePath = path.join(
+      ICONS_DIR,
+      'dynamic',
+      `${style}.ts`,
+    )
 
-  for (const { name, componentName, style, type } of generatedIcons) {
-    const fileName = _.kebabCase(getIconName(`${name} ${type} ${style}`))
-    const exportStatement = `export { default as ${componentName} } from './${fileName}'\n`
+    await fs.appendFile(
+      path.join(ICONS_DIR, 'dynamic', `index.ts`),
+      `export { default as ${getIconName(style)} } from './${style}'\nexport { default as ${getIconName(`Dynamic ${style}`)} } from './${style}'\n`,
+    )
 
-    try {
-      await fs.appendFile(indexFilePath, exportStatement)
-    } catch (error) {
-      // Create index file if not exists
-      await fs.writeFile(indexFilePath, exportStatement)
-      continue
-    }
+    await fs.appendFile(
+      dynamicImportsFilePath,
+      '}\n\nexport default dynamicIconImports\n',
+    )
 
-    // dynamicIconImports += `  ${componentName}: () => import('./icons/${_.kebabCase(
-    //   getIconName(`${name} ${type} ${style}`),
-    // )}'),\n`
+    await fs.appendFile(indexFilePath, `export * from './${style}'\n`)
   }
-
-  // Write dynamicIconImports.ts
-  // dynamicIconImports += '}\n\n'
-  // dynamicIconImports += 'export default dynamicIconImports\n'
-
-  // await fs.writeFile(dynamicIconImportsFilePath, dynamicIconImports)
 }
 
 async function main() {
