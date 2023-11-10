@@ -1,4 +1,10 @@
+.DS_Store
 node_modules/
+stats/
 dist/
 icons/
 src/exposed_icons.json
+packages/**/src/dynamic.ts
+packages/**/dynamic.js
+packages/**/dynamic.d.ts
+packages/**/dynamic.js.map
