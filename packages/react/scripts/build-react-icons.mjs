@@ -116,12 +116,12 @@ async function buildReactIcons() {
 
   // Write index.ts and dynamicIconImports.ts
   const indexFilePath = path.join(ICONS_DIR, 'index.ts')
-  const dynamicIconImportsFilePath = path.join(
-    __dirname,
-    '../src/dynamicIconImports.ts',
-  )
+  // const dynamicIconImportsFilePath = path.join(
+  //   __dirname,
+  //   '../src/dynamicIconImports.ts',
+  // )
 
-  let dynamicIconImports = 'const dynamicIconImports = {\n'
+  // let dynamicIconImports = 'const dynamicIconImports = {\n'
 
   for (const { name, componentName, style, type } of generatedIcons) {
     const fileName = _.kebabCase(getIconName(`${name} ${type} ${style}`))
@@ -135,16 +135,16 @@ async function buildReactIcons() {
       continue
     }
 
-    dynamicIconImports += `  ${componentName}: () => import('./icons/${_.kebabCase(
-      getIconName(`${name} ${type} ${style}`),
-    )}'),\n`
+    // dynamicIconImports += `  ${componentName}: () => import('./icons/${_.kebabCase(
+    //   getIconName(`${name} ${type} ${style}`),
+    // )}'),\n`
   }
 
   // Write dynamicIconImports.ts
-  dynamicIconImports += '}\n\n'
-  dynamicIconImports += 'export default dynamicIconImports\n'
+  // dynamicIconImports += '}\n\n'
+  // dynamicIconImports += 'export default dynamicIconImports\n'
 
-  await fs.writeFile(dynamicIconImportsFilePath, dynamicIconImports)
+  // await fs.writeFile(dynamicIconImportsFilePath, dynamicIconImports)
 }
 
 async function main() {

@@ -37,20 +37,20 @@ const bundles = [
     preserveModules: true,
     aliasesSupport: true,
   },
-  {
-    format: 'esm',
-    inputs: ['src/dynamicIconImports.ts'],
-    outputFile: 'dynamicIconImports.js',
-    aliasesSupport: true,
-    external: [/src/],
-    paths: (id) => {
-      if (id.match(/src/)) {
-        const [, modulePath] = id.match(/src\/(.*)\.ts/)
+  // {
+  //   format: 'esm',
+  //   inputs: ['src/dynamicIconImports.ts'],
+  //   outputFile: 'dynamicIconImports.js',
+  //   aliasesSupport: true,
+  //   external: [/src/],
+  //   paths: (id) => {
+  //     if (id.match(/src/)) {
+  //       const [, modulePath] = id.match(/src\/(.*)\.ts/)
 
-        return `dist/esm/${modulePath}.js`
-      }
-    },
-  },
+  //       return `dist/esm/${modulePath}.js`
+  //     }
+  //   },
+  // },
 ]
 
 const configs = bundles
@@ -111,16 +111,16 @@ const configs = bundles
   .flat()
 
 export default [
-  {
-    input: 'src/dynamicIconImports.ts',
-    output: [
-      {
-        file: `dynamicIconImports.d.ts`,
-        format: 'es',
-      },
-    ],
-    plugins: [dts()],
-  },
+  // {
+  //   input: 'src/dynamicIconImports.ts',
+  //   output: [
+  //     {
+  //       file: `dynamicIconImports.d.ts`,
+  //       format: 'es',
+  //     },
+  //   ],
+  //   plugins: [dts()],
+  // },
   {
     input: inputs[0],
     output: [
